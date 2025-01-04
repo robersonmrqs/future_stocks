@@ -1,0 +1,1 @@
+# FutureStocks it's a web application developed for investors, traders, and financial market enthusiasts. It allows you to query historical stock data and get future predictions based on machine learning models
