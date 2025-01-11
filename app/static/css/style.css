@@ -1,0 +1,101 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    padding-top: 30px;
+    color: #fff;
+}
+
+.stock-info {
+    text-align: center;
+    margin: 30px auto;
+    max-width: 800px;
+    padding: 20px;
+    background-color: rgba(128, 0, 128, 0.1);
+    border-radius: 10px;
+}
+
+.highlight {
+    color: #bf7fff;
+    font-weight: bold;
+}
+
+.graph-container {
+    margin: 40px auto;
+    max-width: 1000px;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#stock-chart {
+    width: 100%;
+    height: 400px;
+}
+
+form {
+    text-align: center;
+    margin: 30px 0;
+}
+
+input {
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid purple;
+    border-radius: 5px;
+    width: 250px;
+    background-color: #1a1a1a;
+    color: white;
+    margin-right: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    background-color: purple;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #9400d3;
+}
+
+.predictions {
+    margin: 30px auto;
+    max-width: 800px;
+    padding: 20px;
+    background-color: rgba(128, 0, 128, 0.1);
+    border-radius: 10px;
+}
+
+.predictions h2 {
+    text-align: center;
+    color: #bf7fff;
+}
+
+.predictions ul {
+    list-style: none;
+    padding: 0;
+}
+
+.predictions li {
+    margin: 15px 0;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.flash-messages {
+    text-align: center;
+    margin: 20px 0;
+    color: #ff4444;
+}

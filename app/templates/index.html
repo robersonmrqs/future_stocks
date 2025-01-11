@@ -1,30 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FutureStocks</title>
+    <title>StockVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <h1>Previsão de Ações</h1>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <form method="POST">
-        <input type="text" name="symbol" placeholder="Símbolo da Ação (ex: AAPL)" required>
-        <button type="submit">Prever</button>
+        <input type="text" name="symbol" placeholder="Símbolo da Ação (ex: AAPL, PETR4.SA)" required>
+        <button type="submit">Analisar</button>
     </form>
 
     {% if data %}
-    <h2>Dados Históricos</h2>
-    <ul>
-        {% for item in data %}
-        <li>{{ item['Date'] }}: {{ item['Close'] }}</li>
-        {% endfor %}
-    </ul>
-    <h2>Previsão</h2>
-    <ul>
-        {% for price in predictions %}
-        <li>{{ price }}</li>
-        {% endfor %}
-    </ul>
+        <div class="stock-info">
+            <h2>{{ data.stock_name }}</h2>
+            <p><strong>Bolsa:</strong> {{ data.stock_exchange }}</p>
+            <p><strong>Preço Atual:</strong> <span class="highlight">R$ {{ data.current_price }}</span></p>
+            <p><strong>Maior valor (últimos 30 dias):</strong> <span class="highlight">R$ {{ data.max_value }}</span></p>
+            <p><strong>Menor valor (últimos 30 dias):</strong> <span class="highlight">R$ {{ data.min_value }}</span></p>
+        </div>
+
+        <div class="graph-container">
+            <canvas id="stock-chart"></canvas>
+        </div>
+
+        <div class="predictions">
+            <h2>Previsões de Preço</h2>
+            <ul>
+                <li><strong>Próximo dia:</strong> <span class="highlight">R$ {{ data.predictions[0] }}</span></li>
+                <li><strong>Em 30 dias:</strong> <span class="highlight">R$ {{ data.predictions[1] }}</span></li>
+                <li><strong>Em 6 meses:</strong> <span class="highlight">R$ {{ data.predictions[2] }}</span></li>
+                <li><strong>Em 1 ano:</strong> <span class="highlight">R$ {{ data.predictions[3] }}</span></li>
+            </ul>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const historicalData = {{ historical_data|safe }};
+                console.log('Historical Data:', historicalData); // For debugging
+                initializeChart(historicalData);
+            });
+        </script>
     {% endif %}
 </body>
 </html>
