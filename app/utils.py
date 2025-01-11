@@ -3,6 +3,57 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from datetime import datetime, timedelta
+import requests
+from typing import List
+
+def search_stocks(query: str) -> List[dict]:
+    """
+    Search for stocks based on a query string.
+    Returns a list of dictionaries containing symbol and company name.
+    """
+    try:
+        # Base URL for Yahoo Finance suggestions
+        url = "https://query2.finance.yahoo.com/v1/finance/search"
+        
+        # Parameters for the search
+        params = {
+            "q": query,
+            "quotesCount": 10,  # Limit results
+            "newsCount": 0,     # We don't need news
+            "enableFuzzyQuery": True,
+            "quotesQueryId": "tss_match_phrase_query"
+        }
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0"
+        }
+        
+        response = requests.get(url, params=params, headers=headers)
+        data = response.json()
+        
+        results = []
+        for quote in data.get("quotes", []):
+            # Only include stocks (not ETFs, mutual funds, etc)
+            if quote.get("quoteType") == "EQUITY":
+                symbol = quote.get("symbol", "")
+                name = quote.get("longname", "") or quote.get("shortname", "")
+                exchange = quote.get("exchange", "")
+                
+                # Format Brazilian stocks
+                if exchange == "SAO":
+                    symbol = f"{symbol}"
+                
+                results.append({
+                    "symbol": symbol,
+                    "name": name,
+                    "exchange": exchange
+                })
+        
+        return results
+
+    except Exception as e:
+        print(f"Error in search_stocks: {str(e)}")
+        return []
 
 def fetch_stock_data(symbol):
     try:

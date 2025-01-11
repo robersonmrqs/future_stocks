@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, flash, current_app
-from .utils import fetch_stock_data
+from flask import Blueprint, render_template, request, flash, jsonify
+from .utils import fetch_stock_data, search_stocks
 import json
 
 routes = Blueprint('routes', __name__)
@@ -12,7 +12,6 @@ def index():
         try:
             symbol = request.form.get("symbol")
             data = fetch_stock_data(symbol)
-            # Ensure historical_values are properly converted to a list of floats
             historical_data = json.dumps([float(x) for x in data["historical_values"]])
             return render_template(
                 "index.html",
@@ -24,3 +23,12 @@ def index():
             return render_template("index.html")
     
     return render_template("index.html")
+
+@routes.route("/search", methods=["GET"])
+def search():
+    query = request.args.get("q", "")
+    if len(query) < 2:
+        return jsonify([])
+    
+    results = search_stocks(query)
+    return jsonify(results)

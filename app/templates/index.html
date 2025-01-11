@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockVision</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Previsão de Ações</h1>
@@ -19,10 +20,21 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST">
-        <input type="text" name="symbol" placeholder="Símbolo da Ação (ex: AAPL, PETR4.SA)" required>
-        <button type="submit">Analisar</button>
-    </form>
+    <div class="search-container">
+        <form method="POST" id="stock-form">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="stock-search" 
+                    placeholder="Digite o nome da empresa ou símbolo..." 
+                    autocomplete="off"
+                >
+                <input type="hidden" id="symbol" name="symbol">
+                <div id="search-results" class="search-results"></div>
+            </div>
+            <button type="submit" disabled id="submit-btn">Analisar</button>
+        </form>
+    </div>
 
     {% if data %}
         <div class="stock-info">
@@ -47,15 +59,66 @@
             </ul>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
         <script>
+            const historicalData = {{ historical_data|safe }};
+            // Wait for DOM to be fully loaded
             document.addEventListener('DOMContentLoaded', function() {
-                const historicalData = {{ historical_data|safe }};
-                console.log('Historical Data:', historicalData); // For debugging
-                initializeChart(historicalData);
+                const ctx = document.getElementById('stock-chart');
+                if (ctx) {
+                    console.log('Canvas found, initializing chart...');
+                    console.log('Historical data:', historicalData);
+                    const labels = Array.from({length: historicalData.length}, (_, i) => `Dia ${i + 1}`);
+                    
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Preço nos últimos 30 dias',
+                                data: historicalData,
+                                borderColor: '#4CAF50',
+                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                                tension: 0.1,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        color: '#ffffff'
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: {
+                                        color: '#333333'
+                                    },
+                                    ticks: {
+                                        color: '#ffffff'
+                                    }
+                                },
+                                y: {
+                                    grid: {
+                                        color: '#333333'
+                                    },
+                                    ticks: {
+                                        color: '#ffffff'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    console.error('Canvas element not found');
+                }
             });
         </script>
     {% endif %}
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

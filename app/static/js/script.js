@@ -1,100 +1,121 @@
-function initializeChart(historicalData) {
-    // Clear any existing chart
-    const chartElement = document.getElementById('stock-chart');
-    if (window.stockChart) {
-        window.stockChart.destroy();
-    }
+let searchTimeout = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('stock-search');
+    const symbolInput = document.getElementById('symbol');
+    const resultsDiv = document.getElementById('search-results');
+    const submitBtn = document.getElementById('submit-btn');
     
-    const ctx = chartElement.getContext('2d');
-    
-    // Parse the data if it's a string
-    const data = typeof historicalData === 'string' ? JSON.parse(historicalData) : historicalData;
-    
-    // Calculate min and max for better scaling
-    const minValue = Math.min(...data);
-    const maxValue = Math.max(...data);
-    const padding = (maxValue - minValue) * 0.1;
-    
-    const labels = Array.from({length: data.length}, (_, i) => `Dia ${i + 1}`);
-    
-    window.stockChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Preço de Fechamento (últimos 30 dias)',
-                data: data,
-                backgroundColor: 'rgba(75, 192, 75, 0.2)',
-                borderColor: 'rgba(75, 192, 75, 1)',
-                borderWidth: 2,
-                tension: 0.3,
-                fill: true,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: 'rgba(75, 192, 75, 1)',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgba(75, 192, 75, 1)',
-                pointHoverBorderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#ffffff'
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Clear symbol and disable button when input changes
+        symbolInput.value = '';
+        submitBtn.disabled = true;
+        
+        if (query.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        // Set new timeout for search
+        searchTimeout = setTimeout(() => {
+            fetch(`/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        resultsDiv.style.display = 'none';
+                        return;
                     }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    titleFont: {
-                        size: 14,
-                        weight: 'bold'
-                    },
-                    bodyFont: {
-                        size: 13
-                    },
-                    padding: 12,
-                    displayColors: false,
-                    callbacks: {
-                        label: function(context) {
-                            return `Preço: R$ ${context.parsed.y.toFixed(2)}`;
+                    
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'search-result-item';
+                        div.innerHTML = `
+                            <span class="symbol">${item.symbol}</span>
+                            <span class="name">${item.name}</span>
+                        `;
+                        
+                        div.addEventListener('click', () => {
+                            searchInput.value = `${item.name} (${item.symbol})`;
+                            symbolInput.value = item.symbol;
+                            resultsDiv.style.display = 'none';
+                            submitBtn.disabled = false;
+                        });
+                        
+                        resultsDiv.appendChild(div);
+                    });
+                    
+                    resultsDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultsDiv.style.display = 'none';
+                });
+        }, 300); // Wait 300ms after user stops typing
+    });
+    
+    // Close results when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+
+    // Initialize chart function
+    window.initializeChart = function(historicalData) {
+        const ctx = document.getElementById('stock-chart').getContext('2d');
+        const labels = Array.from({length: historicalData.length}, (_, i) => i + 1);
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Preço nos últimos 30 dias',
+                    data: historicalData,
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    min: Math.max(0, minValue - padding),
-                    max: maxValue + padding,
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#ffffff',
-                        callback: function(value) {
-                            return 'R$ ' + value.toFixed(2);
-                        }
-                    }
                 },
-                x: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#333333'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
                     },
-                    ticks: {
-                        color: '#ffffff'
+                    y: {
+                        grid: {
+                            color: '#333333'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        }
                     }
                 }
             }
-        }
-    });
-}
+        });
+    };
+});
