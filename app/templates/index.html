@@ -8,116 +8,74 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Previsão de Ações</h1>
-
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="flash-messages">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
+    <main>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>StockVision</h1>
+            <p class="description">
+                The purpose of this application is to assist in decision-making, providing useful insights for those who want to understand market trends and plan investments more strategically.
+            </p>
+            <div class="search-container">
+                <form method="POST" id="stock-form">
+                    <div class="search-box">
+                        <input type="text" id="stock-search" placeholder="Enter company name or symbol..." autocomplete="off">
+                        <input type="hidden" id="symbol" name="symbol">
+                        <div id="search-results" class="search-results"></div>
+                    </div>
+                    <div class="button-group">
+                        <button type="submit" disabled id="submit-btn">Analyze</button>
+                        <button type="button" id="clear-btn">Clear</button>
+                    </div>
+                </form>
             </div>
-        {% endif %}
-    {% endwith %}
+        </div>
 
-    <div class="search-container">
-        <form method="POST" id="stock-form">
-            <div class="search-box">
-                <input 
-                    type="text" 
-                    id="stock-search" 
-                    placeholder="Digite o nome da empresa ou símbolo..." 
-                    autocomplete="off"
-                >
-                <input type="hidden" id="symbol" name="symbol">
-                <div id="search-results" class="search-results"></div>
+        <!-- Results Section -->
+        <div id="results-section" class="{% if not data %}hidden{% endif %}">
+            {% if data %}
+                <div class="stock-info">
+                    <h2>{{ data.stock_name }}</h2>
+                    <p><strong>Exchange:</strong> {{ data.stock_exchange }}</p>
+                    <p><strong>Current Price:</strong> <span class="highlight">$ {{ data.current_price }}</span></p>
+                    <p><strong>30-Day High:</strong> <span class="highlight">$ {{ data.max_value }}</span></p>
+                    <p><strong>30-Day Low:</strong> <span class="highlight">$ {{ data.min_value }}</span></p>
+                </div>
+
+                <!-- Add hidden input with historical data -->
+                <input type="hidden" id="historical-data" data-values="{{ historical_data }}">
+
+                <div class="graph-container">
+                    <canvas id="stock-chart"></canvas>
+                </div>
+
+                <div class="predictions">
+                    <h2>Price Predictions</h2>
+                    <ul>
+                        <li><strong>Next Day:</strong> <span class="highlight">$ {{ data.predictions[0] }}</span></li>
+                        <li><strong>30 Days:</strong> <span class="highlight">$ {{ data.predictions[1] }}</span></li>
+                        <li><strong>6 Months:</strong> <span class="highlight">$ {{ data.predictions[2] }}</span></li>
+                        <li><strong>1 Year:</strong> <span class="highlight">$ {{ data.predictions[3] }}</span></li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">StockVision</div>
+            <div class="footer-info">
+                <div>
+                    <h3>Objective</h3>
+                    <p>This application aims to assist in decision-making by providing useful insights for understanding market trends and planning strategic investments.</p>
+                </div>
+                <div>
+                    <h3>Note</h3>
+                    <p>Predictions are based on historical data and machine learning techniques. They do not guarantee future results and should be used as a complementary analysis tool.</p>
+                </div>
             </div>
-            <button type="submit" disabled id="submit-btn">Analisar</button>
-        </form>
-    </div>
-
-    {% if data %}
-        <div class="stock-info">
-            <h2>{{ data.stock_name }}</h2>
-            <p><strong>Bolsa:</strong> {{ data.stock_exchange }}</p>
-            <p><strong>Preço Atual:</strong> <span class="highlight">R$ {{ data.current_price }}</span></p>
-            <p><strong>Maior valor (últimos 30 dias):</strong> <span class="highlight">R$ {{ data.max_value }}</span></p>
-            <p><strong>Menor valor (últimos 30 dias):</strong> <span class="highlight">R$ {{ data.min_value }}</span></p>
         </div>
-
-        <div class="graph-container">
-            <canvas id="stock-chart"></canvas>
-        </div>
-
-        <div class="predictions">
-            <h2>Previsões de Preço</h2>
-            <ul>
-                <li><strong>Próximo dia:</strong> <span class="highlight">R$ {{ data.predictions[0] }}</span></li>
-                <li><strong>Em 30 dias:</strong> <span class="highlight">R$ {{ data.predictions[1] }}</span></li>
-                <li><strong>Em 6 meses:</strong> <span class="highlight">R$ {{ data.predictions[2] }}</span></li>
-                <li><strong>Em 1 ano:</strong> <span class="highlight">R$ {{ data.predictions[3] }}</span></li>
-            </ul>
-        </div>
-
-        <script>
-            const historicalData = {{ historical_data|safe }};
-            // Wait for DOM to be fully loaded
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('stock-chart');
-                if (ctx) {
-                    console.log('Canvas found, initializing chart...');
-                    console.log('Historical data:', historicalData);
-                    const labels = Array.from({length: historicalData.length}, (_, i) => `Dia ${i + 1}`);
-                    
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                label: 'Preço nos últimos 30 dias',
-                                data: historicalData,
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                                tension: 0.1,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    labels: {
-                                        color: '#ffffff'
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    grid: {
-                                        color: '#333333'
-                                    },
-                                    ticks: {
-                                        color: '#ffffff'
-                                    }
-                                },
-                                y: {
-                                    grid: {
-                                        color: '#333333'
-                                    },
-                                    ticks: {
-                                        color: '#ffffff'
-                                    }
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    console.error('Canvas element not found');
-                }
-            });
-        </script>
-    {% endif %}
+    </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

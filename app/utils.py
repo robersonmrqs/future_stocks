@@ -2,7 +2,6 @@ import yfinance as yf
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 import numpy as np
-from datetime import datetime, timedelta
 import requests
 from typing import List
 
@@ -12,14 +11,11 @@ def search_stocks(query: str) -> List[dict]:
     Returns a list of dictionaries containing symbol and company name.
     """
     try:
-        # Base URL for Yahoo Finance suggestions
         url = "https://query2.finance.yahoo.com/v1/finance/search"
-        
-        # Parameters for the search
         params = {
             "q": query,
-            "quotesCount": 10,  # Limit results
-            "newsCount": 0,     # We don't need news
+            "quotesCount": 10,
+            "newsCount": 0,
             "enableFuzzyQuery": True,
             "quotesQueryId": "tss_match_phrase_query"
         }
@@ -33,13 +29,12 @@ def search_stocks(query: str) -> List[dict]:
         
         results = []
         for quote in data.get("quotes", []):
-            # Only include stocks (not ETFs, mutual funds, etc)
             if quote.get("quoteType") == "EQUITY":
                 symbol = quote.get("symbol", "")
                 name = quote.get("longname", "") or quote.get("shortname", "")
                 exchange = quote.get("exchange", "")
                 
-                # Format Brazilian stocks
+                # Always add .SA for Brazilian stocks
                 if exchange == "SAO":
                     symbol = f"{symbol}"
                 
@@ -67,17 +62,12 @@ def fetch_stock_data(symbol):
         # Get last 30 days data
         last_30_days = df.tail(30)
         
-        # Safely extract max, min, and current values
-        high_max = last_30_days["High"].max()
-        low_min = last_30_days["Low"].min()
-        last_close = df["Close"].iloc[-1]
+        # Properly handle pandas Series
+        max_value = float(last_30_days["High"].max().iloc[0]) if isinstance(last_30_days["High"].max(), pd.Series) else float(last_30_days["High"].max())
+        min_value = float(last_30_days["Low"].min().iloc[0]) if isinstance(last_30_days["Low"].min(), pd.Series) else float(last_30_days["Low"].min())
+        current_price = float(df["Close"].iloc[-1].iloc[0]) if isinstance(df["Close"].iloc[-1], pd.Series) else float(df["Close"].iloc[-1])
         
-        # Convert to float, handling both Series and scalar values
-        max_value = float(high_max[0] if isinstance(high_max, pd.Series) else high_max)
-        min_value = float(low_min[0] if isinstance(low_min, pd.Series) else low_min)
-        current_price = float(last_close[0] if isinstance(last_close, pd.Series) else last_close)
-        
-        # Convert closing prices to list
+        # Convert closing prices to list with proper float conversion
         historical_values = [float(x) for x in last_30_days["Close"].values]
         
         # Get stock info
@@ -86,6 +76,9 @@ def fetch_stock_data(symbol):
         stock_name = stock_info.get('longName', symbol)
         stock_exchange = "Bovespa (B3)" if ".SA" in symbol else "NASDAQ"
         
+        # Prepare predictions
+        predictions = predict_stock(df)
+        
         data = {
             "stock_name": stock_name,
             "stock_exchange": stock_exchange,
@@ -93,11 +86,12 @@ def fetch_stock_data(symbol):
             "max_value": round(max_value, 2),
             "min_value": round(min_value, 2),
             "historical_values": historical_values,
-            "predictions": predict_stock(df)
+            "predictions": predictions
         }
         
         return data
     except Exception as e:
+        print(f"Error in fetch_stock_data: {str(e)}")  # Add debug print
         raise Exception(f"Error fetching data for {symbol}: {str(e)}")
 
 def predict_stock(df):
@@ -124,4 +118,5 @@ def predict_stock(df):
         predictions = model.predict(future_days)
         return [round(float(p), 2) for p in predictions]
     except Exception as e:
-        raise Exception(f"Error making predictions: {str(e)}")
+        print(f"Error in predict_stock: {str(e)}")  # Add debug print
+        return [0, 0, 0, 0]  # Return zeros if prediction fails

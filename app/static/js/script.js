@@ -1,20 +1,54 @@
 let searchTimeout = null;
+let stockChart = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('stock-search');
     const symbolInput = document.getElementById('symbol');
     const resultsDiv = document.getElementById('search-results');
     const submitBtn = document.getElementById('submit-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const resultsSection = document.getElementById('results-section');
+
+    // Initialize chart if historical data exists
+    const historicalDataElement = document.getElementById('historical-data');
+    if (historicalDataElement && historicalDataElement.dataset.values) {
+        try {
+            const historicalData = JSON.parse(historicalDataElement.dataset.values);
+            initializeChart(historicalData);
+        } catch (error) {
+            console.error('Error initializing chart:', error);
+        }
+    }
+
+    function clearSearch() {
+        searchInput.value = '';
+        symbolInput.value = '';
+        submitBtn.disabled = true;
+        resultsDiv.style.display = 'none';
+        
+        if (resultsSection) {
+            resultsSection.classList.add('hidden');
+        }
+        
+        if (stockChart) {
+            stockChart.destroy();
+            stockChart = null;
+        }
+        
+        // Clear form
+        const form = document.getElementById('stock-form');
+        if (form) form.reset();
+    }
+
+    clearBtn.addEventListener('click', clearSearch);
     
     searchInput.addEventListener('input', function() {
         const query = this.value.trim();
         
-        // Clear previous timeout
         if (searchTimeout) {
             clearTimeout(searchTimeout);
         }
         
-        // Clear symbol and disable button when input changes
         symbolInput.value = '';
         submitBtn.disabled = true;
         
@@ -23,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Set new timeout for search
         searchTimeout = setTimeout(() => {
             fetch(`/search?q=${encodeURIComponent(query)}`)
                 .then(response => response.json())
@@ -59,63 +92,89 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Error:', error);
                     resultsDiv.style.display = 'none';
                 });
-        }, 300); // Wait 300ms after user stops typing
+        }, 300);
     });
     
-    // Close results when clicking outside
     document.addEventListener('click', function(e) {
         if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
             resultsDiv.style.display = 'none';
         }
     });
+});
 
-    // Initialize chart function
-    window.initializeChart = function(historicalData) {
-        const ctx = document.getElementById('stock-chart').getContext('2d');
-        const labels = Array.from({length: historicalData.length}, (_, i) => i + 1);
-        
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Preço nos últimos 30 dias',
-                    data: historicalData,
-                    borderColor: '#4CAF50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                    tension: 0.1,
-                    fill: true
-                }]
+function initializeChart(historicalData) {
+    const ctx = document.getElementById('stock-chart').getContext('2d');
+    
+    // Create dates for x-axis (last 30 days)
+    const labels = Array.from({length: historicalData.length}, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (historicalData.length - 1 - i));
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    // Destroy existing chart if it exists
+    if (stockChart) {
+        stockChart.destroy();
+    }
+    
+    stockChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Price (Last 30 days)',
+                data: historicalData,
+                borderColor: '#238636',
+                backgroundColor: 'rgba(35, 134, 54, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#ffffff'
-                        }
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
                     }
                 },
-                scales: {
-                    x: {
-                        grid: {
-                            color: '#333333'
-                        },
-                        ticks: {
-                            color: '#ffffff'
-                        }
+                tooltip: {
+                    backgroundColor: '#161b22',
+                    borderColor: '#30363d',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    displayColors: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: '#30363d',
+                        drawBorder: false
                     },
-                    y: {
-                        grid: {
-                            color: '#333333'
-                        },
-                        ticks: {
-                            color: '#ffffff'
+                    ticks: {
+                        color: '#8b949e'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: '#30363d',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#8b949e',
+                        callback: function(value) {
+                            return '$ ' + value;
                         }
                     }
                 }
             }
-        });
-    };
-});
+        }
+    });
+}
