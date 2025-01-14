@@ -178,3 +178,82 @@ function initializeChart(historicalData) {
         }
     });
 }
+
+function updateMarketData() {
+    const marketData = [
+        // Indices
+        { symbol: '^IXIC', element: 'nasdaq', name: 'NASDAQ', link: 'https://www.google.com/finance/quote/.IXIC:INDEXNASDAQ' },
+        { symbol: '^DJI', element: 'dow', name: 'DOW JONES', link: 'https://www.google.com/finance/quote/.DJI:INDEXDJX' },
+        { symbol: '^GSPC', element: 'sp500', name: 'S&P 500', link: 'https://www.google.com/finance/quote/.INX:INDEXSP' },
+        { symbol: '^BVSP', element: 'bovespa', name: 'BOVESPA', link: 'https://www.google.com/finance/quote/^BVSP:INDEXBVMF' },
+        
+        // Currencies
+        { symbol: 'BRL=X', element: 'usd', name: 'USD/BRL', link: 'https://www.google.com/finance/quote/USD-BRL' },
+        { symbol: 'EUR=X', element: 'eur', name: 'EUR/BRL', link: 'https://www.google.com/finance/quote/EUR-BRL' },
+        
+        // Commodities
+        { symbol: 'CL=F', element: 'oil', name: 'OIL WTI', link: 'https://www.google.com/finance/quote/CL%3ANYMEX' }
+    ];
+
+    marketData.forEach(item => {
+        fetch(`/market_data?symbol=${item.symbol}`)
+            .then(response => response.json())
+            .then(data => {
+                const element = document.getElementById(item.element);
+                if (element) {
+                    // Update the HTML of the market item
+                    element.innerHTML = `
+                        <a href="${item.link}" target="_blank" class="market-link">
+                            <span class="market-name">${item.name}</span>
+                            <span class="market-value">${data.price.toFixed(2)}</span>
+                            <span class="market-change ${data.change >= 0 ? 'positive' : 'negative'}">
+                                ${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%
+                            </span>
+                        </a>
+                    `;
+                }
+            })
+            .catch(error => console.error(`Error fetching ${item.symbol} data:`, error));
+    });
+}
+
+// Start updating market data when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateMarketData();
+    // Update market data every 30 seconds
+    setInterval(updateMarketData, 30000);
+});
+
+// Time range selection handling
+document.addEventListener('DOMContentLoaded', function() {
+    const timeButtons = document.querySelectorAll('.time-btn');
+    
+    timeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            timeButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Get the selected time range
+            const range = this.dataset.range;
+            const symbol = document.getElementById('symbol').value;
+            
+            if (symbol) {
+                // Fetch new data for the selected time range
+                fetch(`/historical_data?symbol=${symbol}&range=${range}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the chart with new data
+                        updateChart(data);
+                    })
+                    .catch(error => console.error('Error fetching historical data:', error));
+            }
+        });
+    });
+});
+
+// Start updating market data
+updateMarketData();
+// Update market data every 60 seconds
+setInterval(updateMarketData, 60000);

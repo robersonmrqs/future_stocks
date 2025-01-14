@@ -202,3 +202,176 @@ button:disabled {
 .hidden {
     display: none !important;
 }
+
+/* Add these new styles to your existing style.css */
+
+.hero-section {
+    display: flex;
+    gap: 2rem;
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hero-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+.hero-right {
+    flex: 1;
+    min-width: 300px;
+}
+
+.market-overview {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.market-overview h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.market-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.market-item {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.market-name {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.market-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.market-change {
+    font-size: 1rem;
+}
+
+.market-change.positive {
+    color: #238636;
+}
+
+.market-change.negative {
+    color: #f85149;
+}
+
+/* Time Range Selector Styles */
+.time-range-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.time-btn {
+    padding: 0.5rem 1rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.time-btn:hover {
+    background: var(--secondary-color);
+}
+
+.time-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+    }
+    
+    .market-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/* Add these styles to your existing style.css file */
+
+.market-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s;
+}
+
+.market-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.market-item {
+    cursor: pointer;
+    padding: 1rem;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: transform 0.2s;
+}
+
+.market-item:hover {
+    transform: translateY(-2px);
+}
+
+.market-name {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.market-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0.2rem 0;
+}
+
+.market-change {
+    font-size: 1rem;
+}
+
+.market-change.positive {
+    color: #238636;
+}
+
+.market-change.negative {
+    color: #f85149;
+}
+
+.market-section {
+    margin-bottom: 1.5rem;
+}
+
+.market-section-title {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
