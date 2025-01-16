@@ -1,0 +1,34 @@
+.footer {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.footer-logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.footer-info h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.footer-info p {
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+}

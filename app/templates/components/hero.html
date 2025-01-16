@@ -1,0 +1,52 @@
+<div class="hero-section">
+    <div class="hero-left">
+        <h1>StockVision</h1>
+        <p class="description">
+            The purpose of this application is to assist in decision-making, providing useful insights for those who want to understand market trends and plan investments more strategically.
+        </p>
+        <div class="search-container">
+            <form method="POST" id="stock-form">
+                <div class="search-box">
+                    <input type="text" id="stock-search" placeholder="Enter company name or symbol..." autocomplete="off">
+                    <input type="hidden" id="symbol" name="symbol">
+                    <div id="search-results" class="search-results"></div>
+                </div>
+                <div class="button-group">
+                    <button type="submit" disabled id="submit-btn">Analyze</button>
+                    <button type="button" id="clear-btn">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="hero-right">
+        <div class="market-overview">
+            <h2>Market Overview</h2>
+            
+            <div class="market-section">
+                <h3>Indices</h3>
+                <div class="market-grid">
+                    <div class="market-item" id="nasdaq"></div>
+                    <div class="market-item" id="dow"></div>
+                    <div class="market-item" id="sp500"></div>
+                    <div class="market-item" id="bovespa"></div>
+                </div>
+            </div>
+            
+            <div class="market-section">
+                <h3>Currencies</h3>
+                <div class="market-grid">
+                    <div class="market-item" id="usd"></div>
+                    <div class="market-item" id="eur"></div>
+                </div>
+            </div>
+            
+            <div class="market-section">
+                <h3>Commodities</h3>
+                <div class="market-grid">
+                    <div class="market-item" id="oil"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

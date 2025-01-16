@@ -1,0 +1,37 @@
+.hero-section {
+    display: flex;
+    gap: 2rem;
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hero-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+.hero-right {
+    flex: 1;
+    min-width: 300px;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    letter-spacing: -0.02em;
+}
+
+.description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+    }
+}
