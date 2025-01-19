@@ -18,6 +18,11 @@
     font-size: 16px;
 }
 
+#stock-search:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
 .button-group {
     display: flex;
     gap: 10px;
@@ -40,7 +45,7 @@ button {
 }
 
 #submit-btn:hover {
-    background-color: #2ea043;
+    background-color: var(--primary-hover);
 }
 
 #clear-btn {

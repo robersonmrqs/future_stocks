@@ -1,0 +1,29 @@
+{% from 'components/market_item.html' import render_market_item %}
+
+<div class="market-overview">
+    <h2>Sugestões dos favoritos</h2>
+    
+    <div class="market-section">
+        <div class="market-grid">
+            {% for item in market_data.indices %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="market-section">
+        <div class="market-grid">
+            {% for item in market_data.currencies %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="market-section">
+        <div class="market-grid">
+            {% for item in market_data.commodities %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>

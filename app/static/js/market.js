@@ -14,7 +14,7 @@ export class MarketDataManager {
     async updateMarketData() {
         for (const item of this.marketData) {
             try {
-                const response = await fetch(`/market_data?symbol=${item.symbol}`);
+                const response = await fetch(`/api/market_data?symbol=${item.symbol}`);
                 const data = await response.json();
                 this.updateMarketItem(item, data);
             } catch (error) {

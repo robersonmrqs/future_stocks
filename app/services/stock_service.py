@@ -43,7 +43,8 @@ class StockService:
     
     def fetch_stock_data(self, symbol: str) -> Dict[str, Any]:
         try:
-            df = yf.download(symbol, period="1y")
+            # Get maximum historical data
+            df = yf.download(symbol, period="max")
             if df.empty:
                 raise ValueError(f"No data found for symbol {symbol}")
             
@@ -56,10 +57,12 @@ class StockService:
             data = {
                 "stock_name": stock_info.get('longName', symbol),
                 "stock_exchange": "Bovespa (B3)" if ".SA" in symbol else "NASDAQ",
-                "current_price": round(float(df["Close"].iloc[-1]), 2),
-                "max_value": round(float(last_30_days["High"].max()), 2),
-                "min_value": round(float(last_30_days["Low"].min()), 2),
-                "historical_values": [float(x) for x in last_30_days["Close"].values],
+                # Use .iloc[0] when converting Series to float
+                "current_price": round(float(df["Close"].iloc[-1].iloc[0] if isinstance(df["Close"].iloc[-1], pd.Series) else df["Close"].iloc[-1]), 2),
+                "max_value": round(float(last_30_days["High"].max().iloc[0] if isinstance(last_30_days["High"].max(), pd.Series) else last_30_days["High"].max()), 2),
+                "min_value": round(float(last_30_days["Low"].min().iloc[0] if isinstance(last_30_days["Low"].min(), pd.Series) else last_30_days["Low"].min()), 2),
+                "historical_values": [float(x) for x in df["Close"].values],
+                "dates": df["Date"].dt.strftime('%Y-%m-%d').tolist(),
                 "predictions": self.prediction_service.predict_stock(df)
             }
             

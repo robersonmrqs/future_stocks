@@ -1,0 +1,16 @@
+{% macro render_market_item(item) %}
+<div class="market-item">
+    <div class="market-item-content">
+        <div class="market-header">
+            <span class="market-name">{{ item.name }}</span>
+            <span class="market-trend {{ item.color }}">{{ item.trend }}</span>
+        </div>
+        <div class="market-body">
+            <span class="market-price">{{ "%.2f"|format(item.price) }}</span>
+            <span class="market-change {{ item.color }}">
+                {% if item.change >= 0 %}+{% endif %}{{ "%.2f"|format(item.change) }}%
+            </span>
+        </div>
+    </div>
+</div>
+{% endmacro %}

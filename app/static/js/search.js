@@ -1,3 +1,5 @@
+import { debounce } from './utils.js';
+
 export class StockSearch {
     constructor(options) {
         this.searchInput = document.getElementById(options.searchInputId);
@@ -28,7 +30,7 @@ export class StockSearch {
         }
         
         try {
-            const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
             const data = await response.json();
             this.displayResults(data);
         } catch (error) {

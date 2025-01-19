@@ -28,3 +28,19 @@ def index():
     
     # Always pass both variables to template
     return render_template('index.html', data=data, historical_data=historical_data)
+
+@bp.route('/analyze', methods=['POST'])
+def analyze():
+    try:
+        symbol = request.form.get('symbol')
+        if not symbol:
+            return {"error": "No symbol provided"}, 400
+        
+        data = stock_service.fetch_stock_data(symbol)
+        if not data:
+            return {"error": "No data found for the symbol"}, 404
+        
+        # Retorne os dados para o frontend
+        return {"data": data}, 200
+    except Exception as e:
+        return {"error": str(e)}, 500

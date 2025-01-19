@@ -1,124 +1,145 @@
 export class StockChart {
     constructor() {
         this.chart = null;
-        this.currentRange = '30'; // Default to 30 days
+        this.currentRange = '1d';
         this.currentSymbol = null;
-        this.initializeEventListeners();
+        this.chartConfig = {
+            type: 'line',
+            options: this.getChartOptions()
+        };
     }
 
-    initializeEventListeners() {
-        const timeButtons = document.querySelectorAll('.time-btn');
-        timeButtons.forEach(button => {
-            button.addEventListener('click', () => this.handleTimeRangeChange(button));
-        });
+    getChartOptions() {
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#161b22',
+                    borderColor: '#30363d',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    displayColors: false,
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => `$ ${context.raw.toFixed(2)}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: '#30363d',
+                        drawBorder: false,
+                        display: false
+                    },
+                    ticks: {
+                        color: '#8b949e',
+                        maxRotation: 45,
+                        minRotation: 45
+                    }
+                },
+                y: {
+                    grid: {
+                        color: '#30363d',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#8b949e',
+                        callback: value => `$ ${value.toFixed(2)}`
+                    }
+                }
+            }
+        };
     }
 
-    async handleTimeRangeChange(button) {
-        if (!this.currentSymbol) return;
-
-        // Update active button
-        document.querySelectorAll('.time-btn').forEach(btn => 
-            btn.classList.remove('active'));
-        button.classList.add('active');
-
-        // Update chart data
-        const range = button.dataset.range;
-        this.currentRange = range;
-        await this.fetchAndUpdateData();
-    }
-
-    async fetchAndUpdateData() {
+    async initializeChart(data) {
         try {
-            const response = await fetch(
-                `/historical_data?symbol=${this.currentSymbol}&range=${this.currentRange}`
-            );
-            const data = await response.json();
-            this.updateChart(data);
+            const canvas = document.getElementById('stock-chart');
+            if (!canvas) throw new Error('Canvas element not found');
+            
+            this.setupEventListeners();
+            await this.updateChart(data);
         } catch (error) {
-            console.error('Error fetching historical data:', error);
+            console.error('Error initializing chart:', error);
+            throw error;
         }
     }
 
-    updateChart(historicalData) {
-        const ctx = document.getElementById('stock-chart').getContext('2d');
+    setupEventListeners() {
+        document.querySelectorAll('.time-btn').forEach(button => {
+            button.addEventListener('click', async () => {
+                const range = button.dataset.range;
+                if (range && this.currentSymbol) {
+                    await this.updateTimeRange(range, button);
+                }
+            });
+        });
+    }
+
+    async updateTimeRange(range, button) {
+        try {
+            document.querySelectorAll('.time-btn').forEach(btn => 
+                btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            this.currentRange = range;
+            const data = await this.fetchHistoricalData();
+            await this.updateChart(data);
+        } catch (error) {
+            console.error('Error updating time range:', error);
+        }
+    }
+
+    async fetchHistoricalData() {
+        const response = await fetch(
+            `/api/historical_data?symbol=${encodeURIComponent(this.currentSymbol)}&range=${this.currentRange}`
+        );
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    }
+
+    async updateChart(data) {
+        if (!data || !data.prices) return;
+
+        const canvas = document.getElementById('stock-chart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
         
         if (this.chart) {
             this.chart.destroy();
         }
 
-        const labels = this.createTimeLabels(historicalData.length);
-        this.chart = new Chart(ctx, this.createChartConfig(labels, historicalData));
-    }
-
-    createTimeLabels(length) {
-        return Array.from({length}, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (length - 1 - i));
-            return date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        });
-    }
-
-    createChartConfig(labels, data) {
-        return {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Stock Price',
-                    data,
-                    borderColor: 'var(--primary-color)',
-                    backgroundColor: 'rgba(35, 134, 54, 0.1)',
-                    tension: 0.1,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                },
-                plugins: {
-                    legend: {
-                        labels: { color: 'var(--text-color)' }
-                    },
-                    tooltip: {
-                        backgroundColor: 'var(--surface-color)',
-                        borderColor: 'var(--border-color)',
-                        borderWidth: 1,
-                        titleColor: 'var(--text-color)',
-                        bodyColor: 'var(--text-color)',
-                        displayColors: false,
-                        callbacks: {
-                            label: (context) => `$ ${context.raw.toFixed(2)}`
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'var(--border-color)',
-                            drawBorder: false
-                        },
-                        ticks: { color: 'var(--text-secondary)' }
-                    },
-                    y: {
-                        grid: {
-                            color: 'var(--border-color)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            color: 'var(--text-secondary)',
-                            callback: value => `$ ${value}`
-                        }
-                    }
-                }
-            }
+        const chartData = {
+            labels: data.dates || this.createTimeLabels(data.prices.length),
+            datasets: [{
+                label: 'Stock Price',
+                data: data.prices,
+                borderColor: '#6e40c9',
+                backgroundColor: 'rgba(110, 64, 201, 0.1)',
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHitRadius: 20,
+                tension: 0.4,
+                fill: true
+            }]
         };
+
+        this.chart = new Chart(ctx, {
+            ...this.chartConfig,
+            data: chartData
+        });
     }
 
     setSymbol(symbol) {
@@ -126,6 +147,4 @@ export class StockChart {
     }
 }
 
-// Initialize chart instance
-const stockChart = new StockChart();
-export default stockChart;
+export default new StockChart();
