@@ -1,0 +1,115 @@
+#results-section {
+    padding: 2rem;
+    background: var(--surface-color);
+}
+
+.section-title {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.results-container {
+    display: flex;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.results-left {
+    flex: 3;
+    min-width: 300px;
+}
+
+.results-right {
+    flex: 2;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.graph-container {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    height: 500px;
+}
+
+.graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.graph-header h2 {
+    color: var(--text-color);
+    margin: 0;
+}
+
+.time-range-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.time-btn {
+    padding: 0.5rem 1rem;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-speed);
+}
+
+.time-btn:hover {
+    background: var(--secondary-color);
+    border-color: var(--primary-color);
+}
+
+.time-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.stock-info,
+.predictions {
+    background-color: var(--background-color);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.stock-info h2,
+.predictions h2 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.stock-info p,
+.predictions li {
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+    .results-container {
+        flex-direction: column;
+    }
+
+    .results-left,
+    .results-right {
+        flex: 1;
+        width: 100%;
+    }
+
+    .graph-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

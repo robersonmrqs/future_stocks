@@ -1,0 +1,42 @@
+.market-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.market-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px 0;
+    transition: background-color 0.3s;
+}
+
+.market-card:hover {
+    background-color: #f0f0f0;
+}
+
+.market-name {
+    font-weight: bold;
+    flex: 1;
+}
+
+.market-value {
+    flex: 1;
+    text-align: center;
+}
+
+.market-change {
+    flex: 1;
+    text-align: right;
+}
+
+.market-change.positive {
+    color: green;
+}
+
+.market-change.negative {
+    color: red;
+}

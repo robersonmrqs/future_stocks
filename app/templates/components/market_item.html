@@ -1,0 +1,19 @@
+{% macro render_market_item(item) %}
+<div class="market-item">
+    <div class="market-item-left">
+        <div class="market-name">{{ item.name }}</div>
+        <div class="market-price">{{ "{:,.2f}".format(item.price) }}</div>
+    </div>
+    <div class="market-item-right {{ item.color }}">
+        {% if item.trend == "up" %}
+        <span class="trend-arrow">↑</span>
+        {% else %}
+        <span class="trend-arrow">↓</span>
+        {% endif %}
+        <div class="change-values">
+            <span class="change-percent">{{ "{:+.2f}%".format(item.change) }}</span>
+            <span class="change-points">{{ "{:+.2f}".format(item.points) }}</span>
+        </div>
+    </div>
+</div>
+{% endmacro %}

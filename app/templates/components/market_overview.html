@@ -1,0 +1,38 @@
+{% from 'components/market_item.html' import render_market_item %}
+
+<div class="market-overview">
+    <h2>Market Overview</h2>
+    <div class="market-grid">
+      <div class="market-card">
+        <h3>S&P 500</h3>
+        <p class="price">4,567.89</p>
+        <p class="change positive">+1.23%</p>
+      </div>
+      <div class="market-card">
+        <h3>NASDAQ</h3>
+        <p class="price">13,456.78</p>
+        <p class="change negative">-0.56%</p>
+      </div>
+    </div>
+</div>
+    
+    <div class="market-content">
+        <div class="market-section">
+            {% for item in market_data.indices %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+        
+        <div class="market-section">
+            {% for item in market_data.currencies %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+        
+        <div class="market-section">
+            {% for item in market_data.commodities %}
+                {{ render_market_item(item) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>

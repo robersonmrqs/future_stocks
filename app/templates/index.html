@@ -4,147 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockVision</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <main>
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="hero-left">
-                <h1>StockVision</h1>
-                <p class="description">
-                    The purpose of this application is to assist in decision-making, providing useful insights for those who want to understand market trends and plan investments more strategically.
-                </p>
-                <div class="search-container">
-                    <form method="POST" id="stock-form">
-                        <div class="search-box">
-                            <input type="text" id="stock-search" placeholder="Enter company name or symbol..." autocomplete="off">
-                            <input type="hidden" id="symbol" name="symbol">
-                            <div id="search-results" class="search-results"></div>
-                        </div>
-                        <div class="button-group">
-                            <button type="submit" disabled id="submit-btn">Analyze</button>
-                            <button type="button" id="clear-btn">Clear</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="hero-right">
-                <div class="market-overview">
-                    <h2>Market Overview</h2>
-                    
-                    <div class="market-section">
-                        <h3>Indices</h3>
-                        <div class="market-grid">
-                            <div class="market-item" id="nasdaq">
-                                <span class="market-name">NASDAQ</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                            <div class="market-item" id="dow">
-                                <span class="market-name">DOW JONES</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                            <div class="market-item" id="sp500">
-                                <span class="market-name">S&P 500</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                            <div class="market-item" id="bovespa">
-                                <span class="market-name">BOVESPA</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <div class="market-section">
-                        <h3>Currencies</h3>
-                        <div class="market-grid">
-                            <div class="market-item" id="usd">
-                                <span class="market-name">USD/BRL</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                            <div class="market-item" id="eur">
-                                <span class="market-name">EUR/BRL</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <div class="market-section">
-                        <h3>Commodities</h3>
-                        <div class="market-grid">
-                            <div class="market-item" id="oil">
-                                <span class="market-name">OIL WTI</span>
-                                <span class="market-value">Loading...</span>
-                                <span class="market-change">0.00%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div id="results-section" class="{% if not data %}hidden{% endif %}">
-            {% if data %}
-                <div class="stock-info">
-                    <h2>{{ data.stock_name }}</h2>
-                    <p><strong>Exchange:</strong> {{ data.stock_exchange }}</p>
-                    <p><strong>Current Price:</strong> <span class="highlight">$ {{ data.current_price }}</span></p>
-                    <p><strong>30-Day High:</strong> <span class="highlight">$ {{ data.max_value }}</span></p>
-                    <p><strong>30-Day Low:</strong> <span class="highlight">$ {{ data.min_value }}</span></p>
-                </div>
-
-                <input type="hidden" id="historical-data" data-values="{{ historical_data }}">
-
-                <div class="graph-container">
-                    <div class="time-range-selector">
-                        <button class="time-btn active" data-range="1">1 dia</button>
-                        <button class="time-btn" data-range="5">5 dias</button>
-                        <button class="time-btn" data-range="30">1 mês</button>
-                        <button class="time-btn" data-range="180">6 meses</button>
-                        <button class="time-btn" data-range="365">1 ano</button>
-                        <button class="time-btn" data-range="1825">5 anos</button>
-                        <button class="time-btn" data-range="max">MÁX.</button>
-                    </div>
-                    <canvas id="stock-chart"></canvas>
-                </div>
-
-                <div class="predictions">
-                    <h2>Price Predictions</h2>
-                    <ul>
-                        <li><strong>Next Day:</strong> <span class="highlight">$ {{ data.predictions[0] }}</span></li>
-                        <li><strong>30 Days:</strong> <span class="highlight">$ {{ data.predictions[1] }}</span></li>
-                        <li><strong>6 Months:</strong> <span class="highlight">$ {{ data.predictions[2] }}</span></li>
-                        <li><strong>1 Year:</strong> <span class="highlight">$ {{ data.predictions[3] }}</span></li>
-                    </ul>
-                </div>
-            {% endif %}
-        </div>
+        {% include 'components/hero.html' %}
+        {% with current_data=data, history_data=historical_data %}
+            {% include 'components/results.html' %}
+        {% endwith %}
     </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-logo">StockVision</div>
-            <div class="footer-info">
-                <div>
-                    <h3>Objective</h3>
-                    <p>This application aims to assist in decision-making by providing useful insights for understanding market trends and planning strategic investments.</p>
-                </div>
-                <div>
-                    <h3>Note</h3>
-                    <p>Predictions are based on historical data and machine learning techniques. They do not guarantee future results and should be used as a complementary analysis tool.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    {% include 'components/footer.html' %}
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% if historical_data %}
+    <script>
+        window.historicalData = {{ historical_data | safe }};
+    </script>
+    {% endif %}
+
+    <script type="module" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/market.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
