@@ -1,7 +1,7 @@
 export class StockChart {
     constructor() {
         this.chart = null;
-        this.currentRange = '1d';
+        this.currentRange = '5d';
         this.currentSymbol = null;
         this.chartConfig = {
             type: 'line',
@@ -73,29 +73,36 @@ export class StockChart {
     }
 
     setupEventListeners() {
-        document.querySelectorAll('.time-btn').forEach(button => {
-            button.addEventListener('click', async () => {
+        document.addEventListener('click', async (event) => {
+            const button = event.target.closest('.time-btn');
+            if (button && this.currentSymbol) {
                 const range = button.dataset.range;
-                if (range && this.currentSymbol) {
+                if (range) {
                     await this.updateTimeRange(range, button);
                 }
-            });
+            }
         });
     }
+    
 
     async updateTimeRange(range, button) {
         try {
-            document.querySelectorAll('.time-btn').forEach(btn => 
-                btn.classList.remove('active'));
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
-            
+    
+            // Verifica se o símbolo está definido antes de buscar os dados
+            if (!this.currentSymbol) {
+                console.error('Símbolo não definido antes de atualizar o intervalo de tempo.');
+                return;
+            }
+    
             this.currentRange = range;
             const data = await this.fetchHistoricalData();
             await this.updateChart(data);
         } catch (error) {
             console.error('Error updating time range:', error);
         }
-    }
+    }    
 
     async fetchHistoricalData() {
         const response = await fetch(

@@ -33,11 +33,13 @@ export class MarketDataManager {
     createMarketItemHTML(item, data) {
         return `
             <a href="${item.link}" target="_blank" class="market-link">
-                <span class="market-name">${item.name}</span>
-                <span class="market-value">${data.price.toFixed(2)}</span>
-                <span class="market-change ${data.change >= 0 ? 'positive' : 'negative'}">
-                    ${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%
-                </span>
+                <div class="market-card">
+                    <span class="market-name">${item.name}</span>
+                    <span class="market-value">${data.price.toFixed(2)}</span>
+                    <span class="market-change ${data.change >= 0 ? 'positive' : 'negative'}">
+                        ${data.change >= 0 ? '+' : ''}${data.change.toFixed(2)}%
+                    </span>
+                </div>
             </a>
         `;
     }

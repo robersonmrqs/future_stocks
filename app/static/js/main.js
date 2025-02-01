@@ -77,18 +77,13 @@ stockForm.addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (data.data) {
-            // Wait for DOM to be fully updated
             await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Initialize the chart
-            stockChart.setSymbol(symbol);
+        
+            stockChart.setSymbol(symbol);  // Define o símbolo ANTES de inicializar o gráfico
             await stockChart.initializeChart({
                 prices: data.data.historical_values,
                 dates: data.data.dates || []
             });
-            
-        } else {
-            throw new Error('No data received from server');
         }
     } catch (error) {
         console.error('Error analyzing stock:', error);
